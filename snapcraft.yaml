@@ -1,0 +1,60 @@
+name: xwayland-kiosk-helper
+version: 1
+summary: Helper to run X11 apps on a Wayland kiosk
+description: |
+  Helper to run X11 applications on a Wayland kiosk, using Xwayland
+  and a basic window manager to enforce fullscreen kiosk behaviour.
+  .
+  Works in collaboration with the snapcraft desktop helpers:
+  https://github.com/ubuntu/snapcraft-desktop-helpers
+  .
+  Note: uses snapcraft's "passthrough" properties, which has consequence
+  that publishing the resulting snap to the store is gated on manual review.
+  .
+  Usage:
+    1. add "after: [desktop-<technology>, xwayland-kiosk]" to your
+       launcher (selecting the correct toolkit technology)
+    2. prepend your command with "desktop-launch xwayland-kiosk-launch", like:
+       commands: "desktop-launch xwayland-kiosk-launch $SNAP/path/to/foo"
+    3. give a hint for what X11 surface should be fullscreen.
+       Below "commands" add:
+       environment:
+         FULLSCREEN_WINDOW_HINT='window_role="browser-window"'
+       There are various matcher criteria that can be used, reference:
+       https://i3wm.org/docs/userguide.html#_list_of_commands
+    4. [BLOCKED] for full confinement need to add these plugs and slots
+       slots: [ x11 ]
+       plugs: [ x11-plug, opengl ]
+      
+       plugs:
+       x11-plug: # because cannot have identical plug/slot name in same yaml.
+       interface: x11
+
+confinement: strict
+
+parts:
+  xwayland-kiosk-helper:
+    plugin: dump
+    source: glue
+    stage-packages:
+      - xwayland
+      - libegl1-mesa
+      - i3
+    organize:
+      xwayland-kiosk-launch: bin/
+    prime:
+      - bin
+      - usr
+      - etc
+    passthrough:
+      # Xwayland has some hardcoded paths we need to satisfy
+      layout:
+        /usr/share/fonts:
+          bind: $SNAP/usr/share/fonts
+        /usr/share/X11:
+          bind: $SNAP/usr/share/X11
+        /usr/lib/xorg:
+          bind: $SNAP/usr/lib/xorg
+        /usr/bin/xkbcomp:
+          bind-file: $SNAP/usr/bin/xkbcomp
+

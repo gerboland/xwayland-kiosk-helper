@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+
+# Ensure FULLSCREEN_WINDOW_HINT is set
+if [ -z ${FULLSCREEN_WINDOW_HINT+x} ]; then
+    echo "The FULLSCREEN_WINDOW_HINT must be specified in the snapcraft.yaml file"
+    exit 1
+fi
+
+# Xwayland needs to run as root (bug lp:1767372), so everything has to
+if [ "$EUID" -ne 0 ]; then
+    echo "This needs to run as root"
+    exit
+fi
+
+WAYLAND_SOCKET_DIR=$SNAP_DATA/wayland
+
+# Ensure wayland-socket-dir connection established
+if [ ! -d $WAYLAND_SOCKET_DIR ]; then
+    echo "##################################################################################"
+    echo "You need to connect this snap to one which implements the wayland-socket-dir plug."
+    echo ""
+    echo "You can do this with these commands:"
+    echo "  snap install mir-kiosk --beta"
+    echo "  snap connect $SNAP_NAME:wayland-socket-dir mir-kiosk:wayland-socket-dir"
+    echo "##################################################################################"
+    exit 1
+fi
+
+# Xwayland: Use new port number in case old server clean up wasn't successful
+port=0
+while [ -e "/tmp/.X11-unix/X${port}" ]; do
+    let port+=1
+done
+
+# We need a simple window manager to make the client application fullscreen.
+# Am using i3 here, so generate a simple config file for it.
+I3_CONFIG=$SNAP_DATA/i3.config
+
+cat <<EOF >> "$I3_CONFIG"
+# i3 config file (v4)
+font pango:monospace 8
+# set window for fullscreen
+for_window [${FULLSCREEN_WINDOW_HINT}] fullscreen
+EOF
+
+# Launch Xwayland.
+# Wayland clients look for the wayland socket in $XDG_RUNTIME_DIR, so need to override
+# that explicitly to where we specified in the YAML file.
+XDG_RUNTIME_DIR=$WAYLAND_SOCKET_DIR $SNAP/usr/bin/Xwayland -terminate :${port} & pid=$!
+trap "trap - SIGTERM && kill $pid" SIGINT SIGTERM EXIT # kill on signal or quit
+sleep 1 # FIXME - Xwayland does emit SIGUSR1 when ready for client connections
+export DISPLAY=:${port}
+
+$SNAP/usr/bin/i3 -c "$I3_CONFIG" &
+
+# Launch the X11 process passed in
+exec "$@"
