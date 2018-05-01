@@ -57,15 +57,16 @@ parts:
       - bin/xwayland-kiosk-launch
       - usr
       - etc
-    passthrough:
-      # Xwayland has some hardcoded paths we need to satisfy
-      layout:
-        /usr/share/fonts:
-          bind: $SNAP/usr/share/fonts
-        /usr/share/X11:
-          bind: $SNAP/usr/share/X11
-        /usr/lib/xorg:
-          bind: $SNAP/usr/lib/xorg
-        /usr/bin/xkbcomp:
-          bind-file: $SNAP/usr/bin/xkbcomp
+
+# passthrough:
+#   # Xwayland has some hardcoded paths we need to satisfy
+#   layout:
+#     /usr/share/fonts:
+#       bind: $SNAP/usr/share/fonts
+#     /usr/share/X11:
+#       bind: $SNAP/usr/share/X11
+#     /usr/lib/xorg:
+#       bind: $SNAP/usr/lib/xorg
+#     /usr/bin/xkbcomp:
+#       bind-file: $SNAP/usr/bin/xkbcomp
 
