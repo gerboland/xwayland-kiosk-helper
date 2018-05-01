@@ -22,7 +22,18 @@ description: |
          FULLSCREEN_WINDOW_HINT='window_role="browser-window"'
        There are various matcher criteria that can be used, reference:
        https://i3wm.org/docs/userguide.html#_list_of_commands
-    4. [BLOCKED] for full confinement need to add these plugs and slots
+    4. Need to add the following snippet to the end of the snapcraft.yaml:
+         passthrough:
+           layout:
+             /usr/share/fonts:
+             bind: $SNAP/usr/share/fonts
+           /usr/share/X11:
+             bind: $SNAP/usr/share/X11
+           /usr/lib/xorg:
+             bind: $SNAP/usr/lib/xorg
+           /usr/bin/xkbcomp:
+             bind-file: $SNAP/usr/bin/xkbcomp
+    5. [BLOCKED] for full confinement need to add these plugs and slots
        slots: [ x11 ]
        plugs: [ x11-plug, opengl ]
       
