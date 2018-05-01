@@ -54,7 +54,7 @@ parts:
     organize:
       xwayland-kiosk-launch: bin/
     prime:
-      - bin
+      - bin/xwayland-kiosk-launch
       - usr
       - etc
     passthrough:
