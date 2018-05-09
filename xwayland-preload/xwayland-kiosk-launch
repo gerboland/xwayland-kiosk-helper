@@ -47,7 +47,10 @@ EOF
 # Launch Xwayland.
 # Wayland clients look for the wayland socket in $XDG_RUNTIME_DIR, so need to override
 # that explicitly to where we specified in the YAML file.
-XDG_RUNTIME_DIR=$WAYLAND_SOCKET_DIR $SNAP/usr/bin/Xwayland -terminate :${port} & pid=$!
+XDG_RUNTIME_DIR=$WAYLAND_SOCKET_DIR \
+SNAPPY_PRELOAD=$SNAP \
+LD_PRELOAD=$SNAP/lib/libxwayland-preload.so \
+    $SNAP/usr/bin/Xwayland -terminate :${port} & pid=$!
 trap "trap - SIGTERM && kill $pid" SIGINT SIGTERM EXIT # kill on signal or quit
 sleep 1 # FIXME - Xwayland does emit SIGUSR1 when ready for client connections
 export DISPLAY=:${port}

@@ -5,11 +5,8 @@ description: |
   Helper to run X11 applications on a Wayland kiosk, using Xwayland
   and a basic window manager to enforce fullscreen kiosk behaviour.
   .
-  Works in collaboration with the snapcraft desktop helpers:
+  Can works in collaboration with the snapcraft desktop helpers:
   https://github.com/ubuntu/snapcraft-desktop-helpers
-  .
-  Note: uses snapcraft's "passthrough" properties, which has consequence
-  that publishing the resulting snap to the store is gated on manual review.
   .
   Usage:
     1. add "after: [desktop-<technology>, xwayland-kiosk]" to your
@@ -22,51 +19,46 @@ description: |
          FULLSCREEN_WINDOW_HINT='window_role="browser-window"'
        There are various matcher criteria that can be used, reference:
        https://i3wm.org/docs/userguide.html#_list_of_commands
-    4. Need to add the following snippet to the end of the snapcraft.yaml:
-         passthrough:
-           layout:
-             /usr/share/fonts:
-             bind: $SNAP/usr/share/fonts
-           /usr/share/X11:
-             bind: $SNAP/usr/share/X11
-           /usr/lib/xorg:
-             bind: $SNAP/usr/lib/xorg
-           /usr/bin/xkbcomp:
-             bind-file: $SNAP/usr/bin/xkbcomp
-    5. [BLOCKED] for full confinement need to add these plugs and slots
+    5. [EDGE Core only] for full confinement need to add these plugs and slots
        slots: [ x11 ]
        plugs: [ x11-plug, opengl ]
       
        plugs:
-       x11-plug: # because cannot have identical plug/slot name in same yaml.
-       interface: x11
+         x11-plug: # because cannot have identical plug/slot name in same yaml.
+           interface: x11
 
 confinement: strict
 
 parts:
   xwayland-kiosk-helper:
-    plugin: dump
-    source: glue
+    plugin: cmake
+    source: xwayland-preload
+    build-packages:
+      - build-essential
     stage-packages:
       - xwayland
-      - libegl1-mesa
       - i3
-    organize:
-      xwayland-kiosk-launch: bin/
+      - libegl1-mesa
+      - libgl1-mesa-glx
     prime:
       - bin/xwayland-kiosk-launch
-      - usr
-      - etc
-
-# passthrough:
-#   # Xwayland has some hardcoded paths we need to satisfy
-#   layout:
-#     /usr/share/fonts:
-#       bind: $SNAP/usr/share/fonts
-#     /usr/share/X11:
-#       bind: $SNAP/usr/share/X11
-#     /usr/lib/xorg:
-#       bind: $SNAP/usr/lib/xorg
-#     /usr/bin/xkbcomp:
-#       bind-file: $SNAP/usr/bin/xkbcomp
+      - lib/libxwayland-preload.so
+      - usr/bin/Xwayland
+      - usr/bin/xkbcomp
+      - usr/bin/i3
+      - usr/lib/xorg/*
+      - usr/lib/*/lib*
+      - -usr/lib/*/libperl*
+      - usr/lib/*/dri
+      - usr/lib/*/mesa
+      - usr/lib/*/mesa-egl
+      - usr/share/fonts
+      - usr/share/libdrm
+      - usr/share/glib-2.0
+      - usr/share/X11
+      - etc/drirc
+      - etc/fonts
+      - etc/i3
+      - etc/X11
+      
 
