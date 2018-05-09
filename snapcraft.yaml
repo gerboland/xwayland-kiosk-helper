@@ -40,25 +40,25 @@ parts:
       - i3
       - libegl1-mesa
       - libgl1-mesa-glx
-    prime:
-      - bin/xwayland-kiosk-launch
-      - lib/libxwayland-preload.so
-      - usr/bin/Xwayland
-      - usr/bin/xkbcomp
-      - usr/bin/i3
-      - usr/lib/xorg/*
-      - usr/lib/*/lib*
-      - -usr/lib/*/libperl*
-      - usr/lib/*/dri
-      - usr/lib/*/mesa
-      - usr/lib/*/mesa-egl
-      - usr/share/fonts
-      - usr/share/libdrm
-      - usr/share/glib-2.0
-      - usr/share/X11
-      - etc/drirc
-      - etc/fonts
-      - etc/i3
-      - etc/X11
+#    prime:
+#      - bin/xwayland-kiosk-launch
+#      - lib/libxwayland-preload.so
+#      - usr/bin/Xwayland
+#      - usr/bin/xkbcomp
+#      - usr/bin/i3
+#      - usr/lib/xorg/*
+#      - usr/lib/*/lib*
+#      - -usr/lib/*/libperl*
+#      - usr/lib/*/dri
+#      - usr/lib/*/mesa
+#      - usr/lib/*/mesa-egl
+#      - usr/share/fonts
+#      - usr/share/libdrm
+#      - usr/share/glib-2.0
+#      - usr/share/X11
+#      - etc/drirc
+#      - etc/fonts
+#      - etc/i3
+#      - etc/X11
       
 
