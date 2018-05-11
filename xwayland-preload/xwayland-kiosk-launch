@@ -75,7 +75,9 @@ sleep 1 # FIXME - Xwayland does emit SIGUSR1 when ready for client connections
 
 export DISPLAY=:${port}
 
-$SNAP/usr/bin/i3 -c "$I3_CONFIG" &
+# Avoid using $XDG_RUNTIME_DIR until LP: #1656340 is fixed
+XDG_RUNTIME_DIR=$SNAP_DATA \
+  $SNAP/usr/bin/i3 -c "$I3_CONFIG" &
 
 # Launch the X11 process passed in
 exec "$@"
