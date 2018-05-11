@@ -13,6 +13,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 2
 fi
 
+# Wayland socket management
 if [ -z ${WAYLAND_SOCKET_DIR+x} ]; then
   echo "The WAYLAND_SOCKET_DIR was not specified in the snapcraft.yaml file, using fallback."
   WAYLAND_SOCKET_DIR=$XDG_RUNTIME_DIR
@@ -29,6 +30,8 @@ else
     exit 3
   fi
 fi
+
+# Is the X11 plug/
 
 # If necessary, set up minimal environment for Xwayland to function
 if [ -z ${LIBGL_DRIVERS_PATH+x} ]; then
@@ -54,7 +57,7 @@ let port+=4
 # Am using i3 here, so generate a simple config file for it.
 I3_CONFIG=$SNAP_DATA/i3.config
 
-cat <<EOF >> "$I3_CONFIG"
+cat <<EOF > "$I3_CONFIG"
 # i3 config file (v4)
 font pango:monospace 8
 # set window for fullscreen
