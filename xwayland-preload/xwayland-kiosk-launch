@@ -13,6 +13,9 @@ if [ "$EUID" -ne 0 ]; then
   exit 2
 fi
 
+# Create $XDG_RUNTIME_DIR if not exists (to be removed when LP: #1738197 is fixed)
+[ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700
+
 # Wayland socket management
 wdisplay="wayland-0"
 if [ -n "$WAYLAND_DISPLAY" ]; then
