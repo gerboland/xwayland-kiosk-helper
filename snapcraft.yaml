@@ -1,5 +1,5 @@
 name: xwayland-kiosk-helper
-version: 1
+version: 2
 summary: Helper to run X11 apps on a Wayland kiosk
 description: |
   Helper to run X11 applications on a Wayland kiosk, using Xwayland
@@ -21,7 +21,7 @@ description: |
        https://i3wm.org/docs/userguide.html#_list_of_commands
     5. [EDGE Core only] for full confinement need to add these plugs and slots
        slots: [ x11 ]
-       plugs: [ x11-plug, opengl ]
+       plugs: [ x11-plug, opengl, wayland ]
       
        plugs:
          x11-plug: # because cannot have identical plug/slot name in same yaml.

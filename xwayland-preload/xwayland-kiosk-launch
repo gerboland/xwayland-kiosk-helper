@@ -14,21 +14,34 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Wayland socket management
-if [ -z ${WAYLAND_SOCKET_DIR+x} ]; then
-  echo "The WAYLAND_SOCKET_DIR was not specified in the snapcraft.yaml file, using fallback."
-  WAYLAND_SOCKET_DIR=$XDG_RUNTIME_DIR
-else
-  # Ensure wayland-socket-dir connection established
-  if [ ! -d $WAYLAND_SOCKET_DIR ]; then
-    echo "##################################################################################"
-    echo "You need to connect this snap to one which implements the wayland-socket-dir plug."
-    echo ""
-    echo "You can do this with these commands:"
-    echo "  snap install mir-kiosk --beta"
-    echo "  snap connect $SNAP_NAME:wayland-socket-dir mir-kiosk:wayland-socket-dir"
-    echo "##################################################################################"
-    exit 3
+wdisplay="wayland-0"
+if [ -n "$WAYLAND_DISPLAY" ]; then
+  wdisplay="$WAYLAND_DISPLAY"
+fi
+wayland_sockpath="$XDG_RUNTIME_DIR/../$wdisplay"
+wayland_snappath="$XDG_RUNTIME_DIR/$wdisplay"
+
+# Verify accessible Wayland socket - opening it only way to be sure
+attempted_open=$(cat "$wayland_sockpath" 2>&1)
+
+if [ -S "$wayland_sockpath" ] && ! [[ $attempted_open = *"Permission denied"* ]]; then
+  # if running under wayland, use it
+  #export WAYLAND_DEBUG=1
+  # create the compat symlink for now
+  if [ ! -e "$wayland_snappath" ]; then
+    ln -s "$wayland_sockpath" "$wayland_snappath"
   fi
+else
+  echo "Error: Unable to open a valid Wayland socket!"
+  echo ""
+  echo "##################################################################################"
+  echo "You need to connect this snap to one which implements the 'wayland' plug."
+  echo ""
+  echo "You can do this with these commands:"
+  echo "  snap install mir-kiosk"
+  echo "  snap connect $SNAP_NAME:wayland mir-kiosk:wayland"
+  echo "##################################################################################"
+  exit 1;
 fi
 
 # Is the X11 plug/
@@ -65,9 +78,6 @@ for_window [${XWAYLAND_FULLSCREEN_WINDOW_HINT}] fullscreen
 EOF
 
 # Launch Xwayland.
-# Wayland clients look for the wayland socket in $XDG_RUNTIME_DIR, so need to override
-# that explicitly to where we specified in the YAML file.
-XDG_RUNTIME_DIR=$WAYLAND_SOCKET_DIR \
 SNAPPY_PRELOAD=$SNAP \
 LD_PRELOAD=$SNAP/lib/libxwayland-preload.so \
   $SNAP/usr/bin/Xwayland -terminate :${port} & pid=$!
@@ -77,9 +87,7 @@ sleep 1 # FIXME - Xwayland does emit SIGUSR1 when ready for client connections
 
 export DISPLAY=:${port}
 
-# Avoid using $XDG_RUNTIME_DIR until LP: #1656340 is fixed
-XDG_RUNTIME_DIR=$SNAP_DATA \
-  $SNAP/usr/bin/i3 -c "$I3_CONFIG" &
+$SNAP/usr/bin/i3 -c "$I3_CONFIG" &
 
 # Launch the X11 process passed in
 exec "$@"
