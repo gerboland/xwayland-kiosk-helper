@@ -38,7 +38,7 @@ else
   echo "Error: Unable to open a valid Wayland socket!"
   echo ""
   echo "##################################################################################"
-  echo "You need to connect this snap to one which implements the 'wayland' plug."
+  echo "You may need to connect this snap to one which implements the 'wayland' plug."
   echo ""
   echo "You can do this with these commands:"
   echo "  snap install mir-kiosk"
@@ -47,7 +47,17 @@ else
   exit 1;
 fi
 
-# Is the X11 plug/
+# This snap provides both an X11 server and an X11 client which needs to connect to it. To allow
+# this to work correctly, need to be both an X11 slot and X11 plug, and have them connected.
+# Detect the X11 plug/slot connected by verifying access to fontconfig directory.
+attempted_open=$(ls "/var/cache/fontconfig/" 2>&1)
+
+if [[ $attempted_open = *"Permission denied"* ]]; then
+  echo "##################################################################################"
+  echo "If you are experiencing problems with your GUI app (e.g. bad fonts), please run:"
+  echo "  snap connect $SNAP_NAME:x11-plug $SNAP_NAME:x11"
+  echo "##################################################################################"
+fi
 
 # If necessary, set up minimal environment for Xwayland to function
 if [ -z ${LIBGL_DRIVERS_PATH+x} ]; then
