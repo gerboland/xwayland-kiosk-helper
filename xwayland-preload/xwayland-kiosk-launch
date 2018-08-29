@@ -12,6 +12,18 @@ fi
 wayland_sockpath="$XDG_RUNTIME_DIR/../$wdisplay"
 wayland_snappath="$XDG_RUNTIME_DIR/$wdisplay"
 
+# Detect old interface usage
+if [ -n "${WAYLAND_SOCKET_DIR-}" ]; then
+  echo "#################################################################################"
+  echo "NOTICE: the 'wayland-socket-dir' interface has been removed!"
+  echo "Remove reference to it and WAYLAND_SOCKET_DIR from your snapcraft.yaml."
+  echo ""
+  echo "Consult the instructions in"
+  echo "https://github.com/gerboland/xwayland-kiosk-helper/blob/master/snapcraft.yaml"
+  echo "#################################################################################"
+  exit 5
+fi
+
 # If running on Classic, a Wayland socket may be in the usual XDG_RUNTIME_DIR
 if [ ! -S "$wayland_snappath" ]; then
   # Either running on Core, or no Wayland socket to be found
