@@ -39,7 +39,7 @@ description: |
             See https://i3wm.org/docs/userguide.html#configuring on syntax for i3.config
             Don't forget to install the file in the snap.
 
-    4. [EDGE Core only] for full confinement need to add these plugs and slots
+    4. for full confinement need to add these plugs and slots
        slots: [ x11 ]
        plugs: [ x11-plug, opengl, wayland ]
       
