@@ -92,11 +92,10 @@ if [ -z ${LIBGL_DRIVERS_PATH+x} ]; then
   export LIBGL_DRIVERS_PATH=$SNAP/usr/lib/$ARCH/dri
 fi
 
-# Xwayland: Use new port number in case old server clean up wasn't successful
-port=0
-while [ "$(DISPLAY=:$port xdpyinfo &>/dev/null; echo $?)" -eq 0 ]; do
-  let port+=1;
-done
+# Use new port number in case old server clean up wasn't successful
+let port=$RANDOM%100
+# Avoid low numbers as they may be used by desktop
+let port+=4
 
 # We need a simple window manager to make the client application fullscreen.
 # i3 is a lightweight and flexible choice. It requires a configuration file to
