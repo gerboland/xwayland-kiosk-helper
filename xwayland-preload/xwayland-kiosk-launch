@@ -35,6 +35,10 @@ if [ ! -S "$wayland_snappath" ]; then
     if [ "$EUID" -ne 0 ]; then
       echo "You could try running as root"
     fi
+    # It may be that the socket isn't there yet, in case we will get restarted by systemd,
+    # wait a couple seconds to give the other side time to prepare
+    # For mir-kiosk, https://github.com/MirServer/mir/issues/586 would solve it proper
+    sleep 1
     exit 1
   fi
 
