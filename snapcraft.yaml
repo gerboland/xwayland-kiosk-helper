@@ -1,5 +1,5 @@
 name: xwayland-kiosk-helper
-version: 1
+version: 2
 summary: Helper to run X11 apps on a Wayland kiosk
 description: |
   Helper to run X11 applications on a Wayland kiosk, using Xwayland
@@ -12,16 +12,36 @@ description: |
     1. add "after: [desktop-<technology>, xwayland-kiosk-helper]" to your
        launcher (selecting the correct toolkit technology)
     2. prepend your command with "desktop-launch xwayland-kiosk-launch", like:
-       commands: "desktop-launch xwayland-kiosk-launch $SNAP/path/to/foo"
-    3. give a hint for what X11 surface should be fullscreen.
-       Below "commands" add:
-       environment:
-         FULLSCREEN_WINDOW_HINT='window_role="browser-window"'
-       There are various matcher criteria that can be used, reference:
-       https://i3wm.org/docs/userguide.html#_list_of_commands
-    5. [EDGE Core only] for full confinement need to add these plugs and slots
+         command: "desktop-launch xwayland-kiosk-launch $SNAP/path/to/foo"
+    3. configure the internal i3 window manager to fullscreen your X11 apps.
+       Do this by setting one of the following variables in the YAML:
+
+         a. XWAYLAND_FULLSCREEN_WINDOW_HINT to give i3 a specifier for the window to
+            make fullscreen. Some specifiers are:
+              - class="Firefox"
+              - window_role="browser-window"
+              - title="Mozilla Firefox"
+            See https://i3wm.org/docs/userguide.html#command_criteria for all specifiers.
+            A suitable i3.config file with this hint will be created and used.
+
+            Example usage:
+              command: something
+              environment:
+                XWAYLAND_FULLSCREEN_WINDOW_HINT: 'window_role="browser-window"'
+
+         b. XWAYLAND_I3_CONFIG_FILE to the in-snap path of your own i3 config file.
+
+            Example:
+              command: something
+              environment:
+                XWAYLAND_I3_CONFIG_FILE: $SNAP_DATA/i3.config
+
+            See https://i3wm.org/docs/userguide.html#configuring on syntax for i3.config
+            Don't forget to install the file in the snap.
+
+    4. for full confinement need to add these plugs and slots
        slots: [ x11 ]
-       plugs: [ x11-plug, opengl ]
+       plugs: [ x11-plug, opengl, wayland ]
       
        plugs:
          x11-plug: # because cannot have identical plug/slot name in same yaml.
